@@ -1,0 +1,15 @@
+node_modules/
+
+dist/
+
+.env
+
+venv/
+server/venv/
+
+__pycache__/
+*.pyc
+
+.pytest_cache/
+
+server/knowledge_base/chroma_db/

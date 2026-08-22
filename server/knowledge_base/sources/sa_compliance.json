@@ -1,0 +1,79 @@
+[
+  {
+    "id": "POPIA_S22",
+    "legislation": "Protection of Personal Information Act 4 of 2013",
+    "section": "Section 22",
+    "title": "Notification of Security Compromises",
+    "summary": "A responsible party must notify the Information Regulator and, subject to the statutory exceptions, affected data subjects when there are reasonable grounds to believe that an unauthorised person has accessed or acquired personal information. Notification must contain enough information to help affected people take protective measures.",
+    "trigger_conditions": [
+      "Reasonable grounds exist to believe that personal information was accessed by an unauthorised person",
+      "Reasonable grounds exist to believe that personal information was acquired by an unauthorised person",
+      "The affected data subject can be identified, subject to any lawful delay directed for a criminal investigation"
+    ],
+    "required_action": "Notify the Information Regulator and affected data subjects in an appropriate written form, describe the possible consequences and response measures, recommend protective steps, and identify the unauthorised person where known.",
+    "reporting_body": "Information Regulator South Africa and affected data subjects",
+    "deadline": "As soon as reasonably possible after discovery, subject to lawful investigation and containment considerations"
+  },
+  {
+    "id": "POPIA_S19",
+    "legislation": "Protection of Personal Information Act 4 of 2013",
+    "section": "Section 19",
+    "title": "Security Safeguards",
+    "summary": "A responsible party must secure the integrity and confidentiality of personal information in its possession or under its control through appropriate, reasonable technical and organisational measures. The organisation must identify reasonably foreseeable risks, maintain safeguards, verify their effectiveness and update them when new risks or deficiencies emerge.",
+    "trigger_conditions": [
+      "Personal information is processed, stored or controlled by the organisation",
+      "A reasonably foreseeable internal or external security risk is identified",
+      "Existing safeguards are found to be ineffective, outdated or insufficient",
+      "A security incident reveals a weakness in technical or organisational controls"
+    ],
+    "required_action": "Establish, maintain, verify and regularly update reasonable technical and organisational safeguards that are appropriate to the identified risks and generally accepted information-security practices.",
+    "reporting_body": "Information Regulator South Africa, where oversight or enforcement is engaged",
+    "deadline": "Ongoing obligation; corrective measures should be implemented without undue delay when deficiencies are identified"
+  },
+  {
+    "id": "CYBERCRIMES_ACT_S54",
+    "legislation": "Cybercrimes Act 19 of 2020",
+    "section": "Section 54",
+    "title": "Reporting Obligations for Specified Service Providers and Financial Institutions",
+    "summary": "Section 54 establishes a reporting obligation for an electronic communications service provider or financial institution that becomes aware that its computer system was involved in the commission of specified cybercrime offences. The duty is sector-specific and should not be treated as a universal reporting obligation applying to every organisation.",
+    "trigger_conditions": [
+      "The organisation is an electronic communications service provider or financial institution within the section's scope",
+      "The organisation becomes aware that its computer system was involved in the commission of a category of offence covered by the Act",
+      "Information relevant to the offence is available for preservation and reporting"
+    ],
+    "required_action": "Report the prescribed particulars to the South African Police Service and preserve information that may assist the investigation, subject to the commencement status and regulations applicable when the obligation is assessed.",
+    "reporting_body": "South African Police Service",
+    "deadline": "Within 72 hours after becoming aware, where the provision is in force and applicable"
+  },
+  {
+    "id": "CYBERCRIMES_ACT_S2_6",
+    "legislation": "Cybercrimes Act 19 of 2020",
+    "section": "Sections 2 to 6",
+    "title": "Core Cybercrime Offence Definitions",
+    "summary": "Sections 2 to 6 define core offences involving unlawful access, unlawful interception, misuse of software or hardware tools, interference with data or computer programs, and interference with computer systems or storage media. These provisions help incident responders classify observed conduct and preserve evidence relevant to a potential criminal investigation.",
+    "trigger_conditions": [
+      "Evidence indicates intentional and unlawful access to a computer system or storage medium",
+      "Data was unlawfully intercepted or a prohibited tool was used or possessed for a cybercrime purpose",
+      "Data, software, systems or storage media were altered, damaged, interrupted, impaired or made unavailable",
+      "The incident may constitute an attempted, completed or facilitated offence under the listed provisions"
+    ],
+    "required_action": "Preserve relevant logs, forensic artefacts and chain-of-custody records; escalate the matter for legal assessment; and report to law enforcement or another competent authority where required or appropriate.",
+    "reporting_body": "South African Police Service or another competent investigative authority",
+    "deadline": "Promptly after detection and preservation of evidence; specific mandatory deadlines depend on the reporting entity and applicable provision"
+  },
+  {
+    "id": "SARB_DIR_1_2021",
+    "legislation": "South African Reserve Bank Prudential Authority Directive 1 of 2021",
+    "section": "Directive 1 of 2021",
+    "title": "Operational Resilience and Material Operational or Cyber Incident Reporting",
+    "summary": "The directive forms part of the Prudential Authority's supervisory expectations for banks concerning operational resilience and the reporting of material operational or cyber incidents. Affected institutions should assess materiality promptly, activate their incident-governance process and provide the Prudential Authority with the required information through the prescribed supervisory channel.",
+    "trigger_conditions": [
+      "A bank experiences a material operational disruption or cyber incident",
+      "The incident threatens important business services, customer interests, financial stability or regulatory compliance",
+      "The institution's internal materiality criteria or Prudential Authority reporting threshold is met"
+    ],
+    "required_action": "Activate the bank's incident-escalation and regulatory-reporting process, notify the Prudential Authority through the prescribed channel, and provide updates as the impact, containment and recovery position develops.",
+    "reporting_body": "South African Reserve Bank Prudential Authority",
+    "deadline": "In accordance with the directive and the Prudential Authority's prescribed incident-reporting process"
+  }
+]

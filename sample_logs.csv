@@ -1,0 +1,7 @@
+timestamp,src_ip,dst_ip,event_type,user_account,device_id,bytes_transferred,country
+2026-08-20T19:00:00Z,196.25.10.5,10.0.0.12,login_failed,admin,PC-001,120,ZA
+2026-08-20T19:00:05Z,196.25.10.5,10.0.0.12,login_failed,admin,PC-001,120,ZA
+2026-08-20T19:00:09Z,196.25.10.5,10.0.0.12,login_failed,admin,PC-001,120,RU
+2026-08-20T19:00:15Z,196.25.10.5,10.0.0.12,port_scan,admin,PC-001,800,RU
+2026-08-20T19:00:30Z,196.25.10.5,10.0.0.12,login_failed,admin,PC-001,120,RU
+2026-08-20T19:01:00Z,196.25.10.5,10.0.0.15,file_access,jdoe,PC-002,2400,ZA

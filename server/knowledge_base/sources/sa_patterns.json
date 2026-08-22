@@ -1,0 +1,124 @@
+[
+  {
+    "id": "ESKOM_SOCIAL_ENG",
+    "name": "Eskom-Themed Social Engineering",
+    "description": "Adversaries impersonate Eskom or electricity-service intermediaries in messages concerning load shedding, planned outages, prepaid meter updates or urgent account action. The messages commonly direct recipients to fraudulent portals, malicious attachments or payment instructions designed to capture credentials, execute malware or divert funds.",
+    "indicators": [
+      "Unsolicited email, SMS or instant message claiming an urgent Eskom outage, prepaid meter or load shedding action",
+      "Sender domains, shortened links or landing pages that imitate Eskom branding but do not use an authorised domain",
+      "Requests to confirm account credentials, banking details, one-time PINs or prepaid meter information",
+      "Attachments or links presented as outage schedules, invoices, meter updates or service-restoration notices",
+      "Payment instructions directing the recipient to an unfamiliar beneficiary or non-standard payment channel"
+    ],
+    "sector": [
+      "Energy",
+      "Government",
+      "Financial Services",
+      "Business Services",
+      "General Public"
+    ],
+    "mitre_technique_ids": [
+      "T1566.001",
+      "T1566.002",
+      "T1598.003"
+    ],
+    "source": "SENTINEL SA Threat Intelligence Library"
+  },
+  {
+    "id": "GOVPORTAL_CREDENTIAL_STUFFING",
+    "name": "Credential Stuffing Against South African Government Portals",
+    "description": "Adversaries use username and password pairs obtained from unrelated breaches to automate authentication attempts against public-facing .gov.za services. Successful reuse may provide access to citizen, employee or administrative accounts and is often followed by valid-account activity that differs from the account holder's normal location, device or access pattern.",
+    "indicators": [
+      "High-volume authentication attempts against .gov.za portals using many username and password combinations",
+      "Repeated failed sign-ins distributed across multiple accounts from common source infrastructure",
+      "Successful logins immediately following a sequence of failed attempts for the same account",
+      "Authentication from anonymising services, foreign locations or devices not previously associated with the account",
+      "Multiple government-service accounts targeted using credentials linked to known breach corpora"
+    ],
+    "sector": [
+      "National Government",
+      "Provincial Government",
+      "Local Government",
+      "Public Services"
+    ],
+    "mitre_technique_ids": [
+      "T1110.004",
+      "T1078",
+      "T1087"
+    ],
+    "source": "SENTINEL SA Threat Intelligence Library"
+  },
+  {
+    "id": "MOBILE_MONEY_FRAUD",
+    "name": "USSD and Mobile Money Fraud",
+    "description": "Adversaries target users of South African mobile money and instant-payment services, including FNB eWallet, MTN MoMo and comparable bank-led services, through impersonation, fraudulent USSD prompts and credential or one-time PIN harvesting. The activity seeks to enrol, redeem, redirect or withdraw funds by abusing captured authentication information and trusted mobile channels.",
+    "indicators": [
+      "Unsolicited request to dial a USSD code, disclose a one-time PIN or approve a mobile-money transaction",
+      "Messages claiming that an eWallet or mobile-money transfer requires an urgent reversal, verification or release fee",
+      "SIM-swap indicators followed by password resets, mobile-money enrolment or beneficiary changes",
+      "Repeated failed USSD or mobile-app authentication attempts followed by a successful high-risk transaction",
+      "New device registration or transaction activity inconsistent with the customer's normal handset, location or usage pattern"
+    ],
+    "sector": [
+      "Financial Services",
+      "Telecommunications",
+      "Retail",
+      "General Public"
+    ],
+    "mitre_technique_ids": [
+      "T1598.004",
+      "T1056",
+      "T1078"
+    ],
+    "source": "SENTINEL SA Threat Intelligence Library"
+  },
+  {
+    "id": "MUNICIPALITY_RANSOMWARE",
+    "name": "Ransomware Targeting South African Municipal Networks",
+    "description": "Adversaries gain access to municipal environments and disrupt service delivery by encrypting data, disabling systems or interfering with shared infrastructure. The pattern reflects incidents affecting South African local government environments and may involve compromised remote access, lateral movement, backup interference and large-scale file encryption.",
+    "indicators": [
+      "Sudden encryption or renaming of files across municipal workstations, servers or shared drives",
+      "Ransom notes, recovery instructions or extortion communications appearing on multiple hosts",
+      "Abnormal use of remote administration, SMB or privileged accounts across unrelated municipal systems",
+      "Deletion, disabling or tampering involving backups, shadow copies, security tools or recovery services",
+      "Loss of availability affecting billing, licensing, public communications or other municipal service platforms"
+    ],
+    "sector": [
+      "Local Government",
+      "Public Services",
+      "Critical Infrastructure"
+    ],
+    "mitre_technique_ids": [
+      "T1486",
+      "T1021.002",
+      "T1490",
+      "T1078"
+    ],
+    "source": "SENTINEL SA Threat Intelligence Library"
+  },
+  {
+    "id": "FICA_BYPASS_ATTEMPT",
+    "name": "Synthetic Identity Fraud Targeting FICA Controls",
+    "description": "Adversaries combine genuine and fabricated identity attributes to create or manipulate customer profiles intended to pass Financial Intelligence Centre Act onboarding controls. Attempts may use altered identity documents, replayed or generated biometric material, mule-controlled contact details and coordinated applications across multiple financial products.",
+    "indicators": [
+      "Identity attributes that are internally consistent but cannot be corroborated across authoritative or trusted data sources",
+      "Repeated onboarding attempts using shared devices, addresses, telephone numbers or biometric artefacts across different identities",
+      "Document images showing inconsistent fonts, metadata, security features, portrait boundaries or issue details",
+      "Biometric liveness, face-match or document-verification failures followed by altered resubmissions",
+      "Rapid account creation followed by beneficiary additions, cash-equivalent transfers or other mule-account behaviour"
+    ],
+    "sector": [
+      "Banking",
+      "Insurance",
+      "Fintech",
+      "Credit Providers",
+      "Telecommunications"
+    ],
+    "mitre_technique_ids": [
+      "T1585",
+      "T1586",
+      "T1078"
+    ],
+    "source": "SENTINEL SA Threat Intelligence Library"
+  }
+]
