@@ -13,3 +13,7 @@ __pycache__/
 .pytest_cache/
 
 server/knowledge_base/chroma_db/
+
+client/node_modules/
+client/dist/
+client/.env
