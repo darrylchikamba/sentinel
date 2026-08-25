@@ -63,6 +63,28 @@ def investigation_document(
         "graph_nodes": 4,
         "graph_edges": 2,
         "attack_clusters": 1,
+        "graph_result": {
+            "nodes": [
+                {"id": "1.1.1.1"},
+                {"id": "10.0.0.1"},
+            ],
+            "edges": [
+                {
+                    "source": "1.1.1.1",
+                    "target": "10.0.0.1",
+                }
+            ],
+            "attack_clusters": [
+                {"cluster_id": "CLUSTER-001"}
+            ],
+            "graph_summary": {
+                "total_nodes": 2,
+                "total_edges": 1,
+                "suspicious_nodes": 1,
+                "attack_clusters_detected": 1,
+                "max_threat_score_in_graph": 85,
+            },
+        },
         "mitre_techniques": ["T1110.004 (Credential Stuffing)"],
         "popia_flags": ["POPIA_SECTION_22"],
         "cybercrimes_flags": ["CYBERCRIMES_ACT_REPORTABLE"],
@@ -286,6 +308,32 @@ def test_regenerate_updates_mongodb_with_new_values(
     assert values["mitre_techniques"] == NEW_REPORT["mitre_techniques"]
     assert values["rag_sources_used"] == []
     assert isinstance(values["regenerated_at"], datetime)
+
+
+def test_regenerate_preserves_existing_graph_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    document = investigation_document()
+    original_graph_result = document["graph_result"]
+    collection = install_database(monkeypatch, document)
+
+    monkeypatch.setattr(
+        incident,
+        "generate_incident_report",
+        lambda data: NEW_REPORT,
+    )
+
+    response = TestClient(build_app()).post(
+        f"/api/incident/{INVESTIGATION_ID}/regenerate"
+    )
+
+    assert response.status_code == 200
+    assert len(collection.update_calls) == 1
+
+    _, update = collection.update_calls[0]
+
+    assert "graph_result" not in update["$set"]
+    assert collection.document["graph_result"] == original_graph_result
 
 
 def test_regenerate_for_other_user_returns_404(

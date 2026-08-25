@@ -27,6 +27,7 @@ class InvestigationCreate(BaseModel):
     graph_nodes: int
     graph_edges: int
     attack_clusters: int
+    graph_result: dict[str, Any] = Field(default_factory=dict)
     mitre_techniques: list[str]
     popia_flags: list[str]
     cybercrimes_flags: list[str]
@@ -63,6 +64,7 @@ class InvestigationResponse(BaseModel):
 
 
 class InvestigationDetailResponse(InvestigationResponse):
-    """Full investigation response including scored event records."""
+    """Full investigation response including scored events and graph topology."""
 
     events: list[dict[str, Any]]
+    graph_result: dict[str, Any] = Field(default_factory=dict)

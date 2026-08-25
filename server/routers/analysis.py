@@ -57,7 +57,7 @@ def list_investigations(
     total_pages = math.ceil(total / page_size) if total else 0
 
     mongo_order = ASCENDING if sort_order == "asc" else DESCENDING
-    projection = {"events": 0}
+    projection = {"events": 0, "graph_result": 0}
     cursor = (
         collection.find(ownership_query, projection)
         .sort(sort_by, mongo_order)

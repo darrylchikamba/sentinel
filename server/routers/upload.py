@@ -312,6 +312,7 @@ async def upload_logs(
         attack_clusters=int(
             graph_summary.get("attack_clusters_detected", 0) or 0
         ),
+        graph_result=graph_result,
         mitre_techniques=list(bona_report.get("mitre_techniques", [])),
         popia_flags=list(sa_result.get("popia_flags", [])),
         cybercrimes_flags=list(sa_result.get("cybercrimes_flags", [])),

@@ -67,6 +67,28 @@ def investigation_document(
         "graph_nodes": 7,
         "graph_edges": 2,
         "attack_clusters": 1,
+        "graph_result": {
+            "nodes": [
+                {"id": "1.1.1.1"},
+                {"id": "10.0.0.1"},
+            ],
+            "edges": [
+                {
+                    "source": "1.1.1.1",
+                    "target": "10.0.0.1",
+                }
+            ],
+            "attack_clusters": [
+                {"cluster_id": "CLUSTER-001"}
+            ],
+            "graph_summary": {
+                "total_nodes": 2,
+                "total_edges": 1,
+                "suspicious_nodes": 1,
+                "attack_clusters_detected": 1,
+                "max_threat_score_in_graph": 85,
+            },
+        },
         "mitre_techniques": ["T1110.004 (Credential Stuffing)"],
         "popia_flags": ["POPIA_SECTION_22"],
         "cybercrimes_flags": [],
@@ -133,9 +155,11 @@ class FakeCollection:
             dict(doc) for doc in self.documents
             if all(doc.get(key) == value for key, value in query.items())
         ]
-        if projection and projection.get("events") == 0:
+        if projection:
             for doc in matching:
-                doc.pop("events", None)
+                for field, value in projection.items():
+                    if value == 0:
+                        doc.pop(field, None)
         self.last_cursor = FakeCursor(matching)
         return self.last_cursor
 
@@ -213,8 +237,14 @@ def test_list_excludes_events_at_projection_boundary(
     response = TestClient(build_app()).get("/api/investigations")
 
     assert response.status_code == 200
-    assert "events" not in response.json()["investigations"][0]
-    assert collection.find_calls[0][1] == {"events": 0}
+    body = response.json()["investigations"][0]
+
+    assert "events" not in body
+    assert "graph_result" not in body
+    assert collection.find_calls[0][1] == {
+        "events": 0,
+        "graph_result": 0,
+    }
 
 
 def test_pagination_calculates_page_size_and_total_pages(
@@ -317,6 +347,35 @@ def test_get_detail_returns_events(
         "_id": INVESTIGATION_ID,
         "user_id": str(USER_ID),
     }
+
+
+def test_get_detail_returns_graph_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    document = investigation_document(object_id=INVESTIGATION_ID)
+    install_database(monkeypatch, [document])
+
+    response = TestClient(build_app()).get(
+        f"/api/investigations/{INVESTIGATION_ID}"
+    )
+
+    assert response.status_code == 200
+    assert response.json()["graph_result"] == document["graph_result"]
+
+
+def test_get_detail_legacy_document_defaults_graph_result_to_empty_dict(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    document = investigation_document(object_id=INVESTIGATION_ID)
+    document.pop("graph_result")
+    install_database(monkeypatch, [document])
+
+    response = TestClient(build_app()).get(
+        f"/api/investigations/{INVESTIGATION_ID}"
+    )
+
+    assert response.status_code == 200
+    assert response.json()["graph_result"] == {}
 
 
 def test_invalid_object_id_returns_422() -> None:

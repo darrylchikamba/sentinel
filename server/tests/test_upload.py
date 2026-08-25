@@ -417,6 +417,30 @@ def test_insert_uses_authenticated_user_id(
     assert database.investigations.documents[0]["user_id"] == str(USER_ID)
 
 
+def test_insert_persists_complete_graph_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database = install_success_pipeline(monkeypatch)
+
+    response = TestClient(build_app()).post(
+        "/api/upload",
+        files={"file": ("events.csv", b"x", "text/csv")},
+    )
+
+    assert response.status_code == 200
+
+    document = database.investigations.documents[0]
+    assert document["graph_result"] == GRAPH_RESULT
+    assert document["graph_result"]["nodes"] == GRAPH_RESULT["nodes"]
+    assert document["graph_result"]["edges"] == GRAPH_RESULT["edges"]
+    assert document["graph_result"]["attack_clusters"] == GRAPH_RESULT[
+        "attack_clusters"
+    ]
+    assert document["graph_result"]["graph_summary"] == GRAPH_RESULT[
+        "graph_summary"
+    ]
+
+
 def test_inserted_events_are_bson_safe_and_timestamp_is_iso(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
