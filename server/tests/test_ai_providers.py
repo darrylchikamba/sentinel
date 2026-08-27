@@ -112,8 +112,12 @@ def test_ollama_prompt_trims_local_rag_context():
         data, max_rag_entries=5, rag_content_chars=200
     )
     context = json.loads(prompt.split("INVESTIGATION CONTEXT:\n", 1)[1])
-    assert len(context["rag_context"]) == 5
-    assert all(len(item["content"]) == 200 for item in context["rag_context"])
+    assert context["rag_context"]["rag_available"] is False
+    assert len(context["rag_context"]["retrieved_context"]) == 5
+    assert all(
+        len(item["content"]) == 200
+        for item in context["rag_context"]["retrieved_context"]
+    )
 
 
 def test_ollama_embedding_success(monkeypatch):

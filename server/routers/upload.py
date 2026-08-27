@@ -32,6 +32,52 @@ MAX_FILE_BYTES = 10 * 1024 * 1024
 MAX_RAW_TEXT_CHARS = 50_000
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 
+BINARY_FILE_SIGNATURES = (
+    b"MZ",             # Windows executable
+    b"%PDF-",          # PDF
+    b"PK\\x03\\x04", # ZIP / OOXML container
+    b"\\x7fELF",      # ELF executable
+    b"\\x89PNG",      # PNG image
+    b"\\xff\\xd8\\xff", # JPEG image
+    b"GIF87a",
+    b"GIF89a",
+)
+
+
+def _sanitise_filename(filename: str) -> str:
+    """Return a storage-safe basename for an uploaded filename.
+
+    Browser-supplied filenames are untrusted metadata. SENTINEL never uses
+    them as filesystem paths, and only the basename is persisted or passed
+    to the parser so path traversal strings cannot survive in stored data.
+    """
+    normalised = str(filename or "").strip().replace("\\", "/")
+    safe_name = Path(normalised).name.strip()
+    if safe_name in {"", ".", ".."}:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="A valid filename is required",
+        )
+    return safe_name
+
+
+def _reject_obvious_binary_csv(file_bytes: bytes) -> None:
+    """Reject content that is plainly binary while claiming a .csv suffix.
+
+    MIME headers are client-controlled, so this check intentionally inspects
+    the bytes instead. It is scoped only to CSV uploads; legitimate Excel
+    files are binary and are validated by their own parser path.
+    """
+    sample = file_bytes[:4096]
+    if b"\\x00" in sample or any(
+        sample.startswith(signature)
+        for signature in BINARY_FILE_SIGNATURES
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="CSV upload contains unsupported binary content",
+        )
+
 
 def _empty_rag_result() -> dict[str, Any]:
     return {
@@ -165,13 +211,7 @@ async def _parse_request_input(
                 detail="Provide either a file upload or raw_text",
             )
 
-        filename = (uploaded.filename or "").strip()
-        if not filename:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="A filename is required",
-            )
-
+        filename = _sanitise_filename(uploaded.filename or "")
         upload_source = _determine_upload_source(filename)
         file_bytes = await uploaded.read()
         if len(file_bytes) > MAX_FILE_BYTES:
@@ -179,6 +219,9 @@ async def _parse_request_input(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="File exceeds the 10 MB upload limit",
             )
+
+        if upload_source == "csv":
+            _reject_obvious_binary_csv(file_bytes)
 
         try:
             dataframe = parse_log_file(file_bytes, filename)

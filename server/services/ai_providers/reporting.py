@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import logging
+import re
 from typing import Any
 
+logger = logging.getLogger(__name__)
 
 BONA_PERSONA = """
 You are BONA, SENTINEL's intelligence layer.
@@ -23,27 +26,20 @@ Confidence must be exactly High, Medium, or Low.
 """.strip()
 
 _REQUIRED_KEYS = {
-    "incident_summary",
-    "mitre_techniques",
-    "confidence_level",
-    "incident_next_steps",
-    "popia_flags",
-    "cybercrimes_flags",
-    "sa_patterns_matched",
-    "rag_sources_used",
+    "incident_summary", "mitre_techniques", "confidence_level",
+    "incident_next_steps", "popia_flags", "cybercrimes_flags",
+    "sa_patterns_matched", "rag_sources_used",
 }
 _LIST_FIELDS = {
-    "mitre_techniques",
-    "incident_next_steps",
-    "popia_flags",
-    "cybercrimes_flags",
-    "sa_patterns_matched",
-    "rag_sources_used",
+    "mitre_techniques", "incident_next_steps", "popia_flags",
+    "cybercrimes_flags", "sa_patterns_matched", "rag_sources_used",
 }
 _CONFIDENCE_LEVELS = {"High", "Medium", "Low"}
+_MITRE_TECHNIQUE_PREFIX = re.compile(
+    r"^T\d{4}(?:\.\d{3})?(?=\s|\(|$)"
+)
+_NEXT_STEP_PAD_VALUE = "No further action identified."
 
-# Ollama accepts a JSON Schema object in its ``format`` field. This gives
-# smaller local models a hard output contract instead of prompt-only guidance.
 BONA_REPORT_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
@@ -51,10 +47,8 @@ BONA_REPORT_JSON_SCHEMA: dict[str, Any] = {
         "mitre_techniques": {"type": "array", "items": {"type": "string"}},
         "confidence_level": {"type": "string", "enum": ["High", "Medium", "Low"]},
         "incident_next_steps": {
-            "type": "array",
-            "items": {"type": "string"},
-            "minItems": 4,
-            "maxItems": 4,
+            "type": "array", "items": {"type": "string"},
+            "minItems": 4, "maxItems": 4,
         },
         "popia_flags": {"type": "array", "items": {"type": "string"}},
         "cybercrimes_flags": {"type": "array", "items": {"type": "string"}},
@@ -106,12 +100,15 @@ def build_incident_report_prompt(
         "OUTPUT REQUIREMENTS:\n"
         "Respond with raw JSON only. Do not use markdown fences, a preamble, "
         "or any explanation outside the JSON.\n"
-        "Use real MITRE ATT&CK technique IDs from the supplied evidence; "
-        "never substitute placeholder labels such as 'Technique'.\n"
+        "If rag_context.rag_available is false, set rag_sources_used to an empty list.\n"
+        "Only cite intelligence sources that appear in the supplied "
+        "rag_context.retrieved_context.\n"
+        "Only include MITRE technique IDs in the format T####.### that are "
+        "directly supported by the supplied evidence.\n"
+        "Do not invent attack techniques, threat actor names, or intelligence "
+        "sources not present in the supplied context.\n"
         "The incident_summary must contain exactly two concise formal "
         "paragraphs separated by a blank line.\n"
-        "rag_sources_used must name only sources actually present in the "
-        "retrieved context.\n"
         "Return exactly this structure:\n"
         f"{json.dumps(schema, ensure_ascii=False, indent=2)}\n\n"
         "INVESTIGATION CONTEXT:\n"
@@ -131,8 +128,12 @@ def strip_json_fences(raw: str) -> str:
     return text.strip()
 
 
-def parse_and_validate_report(raw: str) -> dict[str, Any]:
-    """Parse a BONA response and enforce the provider-independent contract."""
+def parse_and_validate_report(
+    raw: str,
+    *,
+    rag_context: object | None = None,
+) -> dict[str, Any]:
+    """Parse and deterministically ground a provider-independent BONA report."""
     parsed = json.loads(strip_json_fences(raw))
     if not isinstance(parsed, dict):
         raise ValueError("BONA response must be a JSON object")
@@ -153,8 +154,9 @@ def parse_and_validate_report(raw: str) -> dict[str, Any]:
     if parsed["confidence_level"] not in _CONFIDENCE_LEVELS:
         raise ValueError("confidence_level must be High, Medium, or Low")
 
-    if len(parsed["incident_next_steps"]) != 4:
-        raise ValueError("incident_next_steps must contain exactly four items")
+    _clean_mitre_techniques(parsed)
+    _clean_rag_provenance(parsed, rag_context)
+    _enforce_next_steps(parsed)
 
     parsed["generated_by"] = "BONA"
     parsed["mock"] = False
@@ -171,18 +173,68 @@ def mock_fallback(
     return fallback
 
 
+def _clean_mitre_techniques(report: dict[str, Any]) -> None:
+    """Keep valid MITRE ID-prefixed entries without changing their text shape."""
+    techniques = report["mitre_techniques"]
+    cleaned = [
+        entry for entry in techniques
+        if isinstance(entry, str)
+        and _MITRE_TECHNIQUE_PREFIX.match(entry.strip())
+    ]
+    removed = len(techniques) - len(cleaned)
+    report["mitre_techniques"] = cleaned
+    if removed:
+        logger.info("BONA grounding removed %s invalid MITRE technique entries", removed)
+
+
+def _clean_rag_provenance(
+    report: dict[str, Any],
+    rag_context: object | None,
+) -> None:
+    """Clear generated provenance when retrieval supplied no usable context."""
+    if not isinstance(rag_context, dict):
+        return
+    if rag_context.get("rag_available") is False:
+        if report["rag_sources_used"]:
+            logger.info(
+                "BONA grounding cleared RAG provenance because rag_available=false"
+            )
+        report["rag_sources_used"] = []
+
+
+def _enforce_next_steps(report: dict[str, Any]) -> None:
+    """Normalise incident_next_steps to the stable four-item UI contract."""
+    steps = report["incident_next_steps"]
+    original_count = len(steps)
+    if original_count < 4:
+        report["incident_next_steps"] = steps + (
+            [_NEXT_STEP_PAD_VALUE] * (4 - original_count)
+        )
+        logger.info(
+            "BONA grounding padded incident_next_steps from %s to 4",
+            original_count,
+        )
+    elif original_count > 4:
+        report["incident_next_steps"] = steps[:4]
+        logger.info(
+            "BONA grounding truncated incident_next_steps from %s to 4",
+            original_count,
+        )
+
+
 def _rag_context_for_prompt(
     value: object,
     *,
     max_entries: int | None = None,
     content_chars: int | None = None,
-) -> list[dict[str, Any]]:
-    """Keep only retrieval fields BONA needs, with optional local-model limits."""
+) -> dict[str, Any]:
+    """Keep RAG availability plus only fields BONA needs for grounding."""
     if not isinstance(value, dict):
-        return []
+        return {"rag_available": False, "retrieved_context": []}
+
     entries = value.get("retrieved_context", [])
     if not isinstance(entries, list):
-        return []
+        entries = []
     if max_entries is not None:
         entries = entries[:max_entries]
 
@@ -201,4 +253,8 @@ def _rag_context_for_prompt(
                 "relevance_score": entry.get("relevance_score", 0.0),
             }
         )
-    return cleaned
+
+    return {
+        "rag_available": bool(value.get("rag_available", False)),
+        "retrieved_context": cleaned,
+    }

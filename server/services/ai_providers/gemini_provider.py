@@ -20,14 +20,10 @@ from .reporting import (
     parse_and_validate_report,
 )
 
-
 logger = logging.getLogger(__name__)
 
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-2"
 GEMINI_GENERATION_MODEL = "gemini-2.5-flash"
-
-# Verified against the live Gemini API during SENTINEL Phase 11 compatibility
-# testing. Ingestion and query vectors must always use the same 3072-D model.
 GEMINI_EMBEDDING_DIM = 3072
 
 
@@ -57,7 +53,6 @@ class GeminiEmbeddingProvider(BaseEmbeddingProvider):
             raise EmbeddingProviderError(
                 f"Gemini embedding request failed: {type(exc).__name__}"
             ) from exc
-
         if len(embedding) != GEMINI_EMBEDDING_DIM:
             raise EmbeddingProviderError(
                 "Gemini embedding dimension mismatch: "
@@ -88,7 +83,10 @@ class GeminiGenerationProvider(BaseGenerationProvider):
             raw = response.text
             if not isinstance(raw, str) or not raw.strip():
                 raise ValueError("Gemini returned an empty response")
-            return parse_and_validate_report(raw)
+            return parse_and_validate_report(
+                raw,
+                rag_context=investigation_data.get("rag_context"),
+            )
         except Exception as exc:
             logger.error(
                 "Gemini BONA generation failed; using mock fallback | error=%s",

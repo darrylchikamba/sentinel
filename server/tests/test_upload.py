@@ -481,3 +481,62 @@ def test_raw_text_over_limit_returns_422() -> None:
     )
     assert response.status_code == 422
     assert "50,000" in response.json()["detail"]
+
+
+def test_filename_path_components_are_stripped_before_parsing_and_storage(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, str] = {}
+
+    database = install_success_pipeline(monkeypatch)
+
+    def parse_file(data: bytes, filename: str) -> pd.DataFrame:
+        seen["filename"] = filename
+        return parsed_df()
+
+    monkeypatch.setattr(upload, "parse_log_file", parse_file)
+
+    response = TestClient(build_app()).post(
+        "/api/upload",
+        files={
+            "file": (
+                "../../windows\\path\\events.csv",
+                b"a,b\n1,2\n",
+                "text/csv",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+    assert seen["filename"] == "events.csv"
+    assert database.investigations.documents[0]["filename"] == "events.csv"
+
+
+def test_obvious_binary_content_with_csv_suffix_is_rejected_before_parser(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    parse_called = False
+
+    def parse_file(*args, **kwargs):
+        nonlocal parse_called
+        parse_called = True
+        return parsed_df()
+
+    monkeypatch.setattr(upload, "parse_log_file", parse_file)
+
+    response = TestClient(build_app()).post(
+        "/api/upload",
+        files={
+            "file": (
+                "events.csv",
+                b"MZ\x00\x00this-is-not-csv",
+                "text/csv",
+            )
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": "CSV upload contains unsupported binary content"
+    }
+    assert parse_called is False

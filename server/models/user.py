@@ -8,12 +8,19 @@ import re
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]+$")
 EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
 
 
 class UserCreate(BaseModel):
-    """Validated registration payload."""
+    """Validated registration payload.
+
+    Security boundary: user-controlled values are reduced to validated scalar
+    fields here and are later used only in queries with application-defined
+    MongoDB field names. Request bodies are never accepted as raw MongoDB
+    query documents or operator dictionaries.
+    """
 
     username: str = Field(min_length=3, max_length=30)
     email: str
@@ -39,7 +46,7 @@ class UserCreate(BaseModel):
 
 
 class UserLogin(BaseModel):
-    """Validated login payload."""
+    """Validated login payload using scalar credentials only."""
 
     email: str
     password: str
@@ -62,7 +69,7 @@ class UserInDB(BaseModel):
         extra="ignore",
     )
 
-    id: ObjectId | None = Field(default=None, alias="_id")
+    id: ObjectId = Field(alias="_id")
     username: str
     email: str
     hashed_password: str

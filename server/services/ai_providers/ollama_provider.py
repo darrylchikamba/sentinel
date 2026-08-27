@@ -21,7 +21,6 @@ from .reporting import (
     parse_and_validate_report,
 )
 
-
 logger = logging.getLogger(__name__)
 
 OLLAMA_EMBEDDING_MODEL = "nomic-embed-text"
@@ -59,7 +58,6 @@ class OllamaEmbeddingProvider(BaseEmbeddingProvider):
     def embed(self, text: str) -> list[float]:
         if not isinstance(text, str) or not text.strip():
             raise EmbeddingProviderError("Embedding text must be non-empty")
-
         try:
             response = httpx.post(
                 f"{_ollama_base_url()}/api/embeddings",
@@ -76,14 +74,12 @@ class OllamaEmbeddingProvider(BaseEmbeddingProvider):
         raw_embedding = payload.get("embedding")
         if not isinstance(raw_embedding, list) or not raw_embedding:
             raise EmbeddingProviderError("Ollama returned no embedding vector")
-
         try:
             embedding = [float(value) for value in raw_embedding]
         except (TypeError, ValueError) as exc:
             raise EmbeddingProviderError(
                 "Ollama returned a non-numeric embedding vector"
             ) from exc
-
         if len(embedding) != OLLAMA_EMBEDDING_DIM:
             raise EmbeddingProviderError(
                 "Ollama embedding dimension mismatch: "
@@ -105,8 +101,6 @@ class OllamaGenerationProvider(BaseGenerationProvider):
         self,
         investigation_data: dict[str, Any],
     ) -> dict[str, Any]:
-        # Keep the local prompt within a CPU-friendly context window. The full
-        # RAG result remains available elsewhere in the investigation pipeline.
         prompt = build_incident_report_prompt(
             investigation_data,
             max_rag_entries=OLLAMA_MAX_RAG_ENTRIES,
@@ -136,7 +130,10 @@ class OllamaGenerationProvider(BaseGenerationProvider):
             raw = payload.get("response", "")
             if not isinstance(raw, str) or not raw.strip():
                 raise ValueError("Ollama returned an empty response")
-            return parse_and_validate_report(raw)
+            return parse_and_validate_report(
+                raw,
+                rag_context=investigation_data.get("rag_context"),
+            )
         except Exception as exc:
             logger.error(
                 "Ollama BONA generation failed; using mock fallback | error=%s",

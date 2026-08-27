@@ -1,7 +1,16 @@
 import axios from 'axios'
 
+const apiUrl = import.meta.env.VITE_API_URL?.trim()
+
+if (!apiUrl) {
+  console.error(
+    'SENTINEL configuration error: VITE_API_URL is missing or empty. ' +
+      'API requests cannot be routed reliably.',
+  )
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: apiUrl,
 })
 
 api.interceptors.request.use(
