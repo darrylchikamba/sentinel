@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="client/public/sentinel-logo.svg" alt="SENTINEL" width="300" />
+<img src="client/public/sentinel-logo.svg" alt="SENTINEL" width="220" />
 
 # SENTINEL
 
@@ -52,20 +52,17 @@ alongside MITRE ATT&CK-aligned technical findings.
 
 ## Live Deployment
 
-  ---------------------------------------------------------------------------------------------------------------------------
-  Service                 Platform                URL
-  ----------------------- ----------------------- ---------------------------------------------------------------------------
-  Frontend                Vercel                  [sentinel-rho-ruby.vercel.app](https://sentinel-rho-ruby.vercel.app/)
+| Service | Platform | URL |
+|---|---|---|
+| Frontend | Vercel | [sentinel-rho-ruby.vercel.app](https://sentinel-rho-ruby.vercel.app/) |
+| Backend API | Render | [sentinel-api-mf0t.onrender.com](https://sentinel-api-mf0t.onrender.com/) |
+| Health Check | Render | [/api/health](https://sentinel-api-mf0t.onrender.com/api/health) |
 
-  Backend API             Render                  [sentinel-api-mf0t.onrender.com](https://sentinel-api-mf0t.onrender.com/)
+### Database
 
-  Health check            Render                  [/api/health](https://sentinel-api-mf0t.onrender.com/api/health)
+**MongoDB Atlas** — Managed cloud deployment
 
-  Database                MongoDB Atlas           Managed cloud deployment
-  ---------------------------------------------------------------------------------------------------------------------------
-
-> **Cold-start note:** the portfolio backend runs on Render's free tier
-> and may take roughly 30--60 seconds to wake after inactivity.
+> **Cold-start note:** The portfolio backend runs on Render's free tier and may take roughly 30–60 seconds to wake after inactivity.
 
 ### Production AI mode
 
@@ -155,30 +152,51 @@ investigations while preserving accurate pagination state.
 
 ## Screenshots
 
-Add the final production screenshots under `assets/screenshots/`:
+### Dashboard
 
-  -----------------------------------------------------------------------------------------
-  Login                                    Dashboard
-  ---------------------------------------- ------------------------------------------------
-  ![Login](assets/screenshots/login.png)   ![Dashboard](assets/screenshots/dashboard.png)
+The SENTINEL dashboard provides an overview of investigation activity, system status and recent intelligence.
 
-  -----------------------------------------------------------------------------------------
+<img src="assets/screenshots/dashboard.png" alt="SENTINEL Dashboard" width="900"/>
 
-  --------------------------------------------------------------------------------------------
-  Analysis                                       Attack Graph
-  ---------------------------------------------- ---------------------------------------------
-  ![Analysis](assets/screenshots/analysis.png)   ![Attack
-                                                 Graph](assets/screenshots/attack-graph.png)
+---
 
-  --------------------------------------------------------------------------------------------
+### Data Upload
 
-  ----------------------------------------------------------------------------------------------
-  Incident Report                                   History
-  ------------------------------------------------- --------------------------------------------
-  ![Incident                                        ![History](assets/screenshots/history.png)
-  Report](assets/screenshots/incident-report.png)   
+Security telemetry can be uploaded for analysis through the investigation workflow.
 
-  ----------------------------------------------------------------------------------------------
+<img src="assets/screenshots/upload.png" alt="SENTINEL Data Upload" width="900"/>
+
+---
+
+### Investigation Analysis
+
+SENTINEL processes uploaded telemetry to surface anomalies, security signals and investigation findings.
+
+<img src="assets/screenshots/analysis.png" alt="SENTINEL Analysis" width="900"/>
+
+---
+
+### Attack Graph
+
+The interactive attack graph visualises relationships between entities, events and observed attack techniques.
+
+<img src="assets/screenshots/attack-graph.png" alt="SENTINEL Attack Graph" width="900"/>
+
+---
+
+### Incident Report
+
+BONA converts investigation findings into a structured incident report while applying grounding and validation controls to AI-generated content.
+
+<img src="assets/screenshots/incident-report.png" alt="SENTINEL Incident Report" width="900"/>
+
+---
+
+### Investigation History
+
+Previous investigations and generated reports can be reviewed through the investigation history interface.
+
+<img src="assets/screenshots/history.png" alt="SENTINEL Investigation History" width="900"/>
 
 ------------------------------------------------------------------------
 
@@ -267,53 +285,35 @@ determinations.
 
 ## Technology Stack
 
-  -----------------------------------------------------------------------
-  Layer                   Technology              Role
-  ----------------------- ----------------------- -----------------------
-  Backend                 Python 3.12             Core server runtime
+| Layer | Technology | Role |
+|---|---|---|
+| **Backend** | Python 3.12 | Core server runtime |
+| **API** | FastAPI, Uvicorn | REST API and ASGI serving |
+| **Validation** | Pydantic | Typed request validation |
+| **Database** | MongoDB Atlas, PyMongo | Users, investigations and reports |
+| **Authentication** | JWT, Passlib/Bcrypt | Stateless authenticated API access |
+| **Analysis** | pandas, scikit-learn | Data processing and analytical pipeline |
+| **Graph** | NetworkX | Attack-graph construction and analysis |
+| **RAG** | ChromaDB | Local vector knowledge store |
+| **AI** | Mock, Ollama, Gemini | Provider-abstracted report generation |
+| **Frontend** | React 18, Vite | Single-page application |
+| **Visualisation** | D3.js | Interactive attack graph |
+| **HTTP** | Axios | Authenticated API communication |
+| **Containers** | Docker, Docker Compose | Reproducible local backend/RAG stack |
+| **CI/CD** | GitHub Actions | Automated verification and deployment |
+| **Hosting** | Render, Vercel | Backend and frontend hosting |
 
-  API                     FastAPI, Uvicorn        REST API and ASGI
-                                                  serving
+### Engineering Focus
 
-  Validation              Pydantic                Typed request
-                                                  validation
+SENTINEL is designed around more than framework choice. The project demonstrates:
 
-  Database                MongoDB Atlas, PyMongo  Users, investigations
-                                                  and reports
-
-  Authentication          JWT, Passlib/Bcrypt     Stateless authenticated
-                                                  API access
-
-  Analysis                pandas, scikit-learn    Data processing and
-                                                  analytical pipeline
-
-  Graph                   NetworkX                Attack-graph
-                                                  construction and
-                                                  analysis
-
-  RAG                     ChromaDB                Local vector knowledge
-                                                  store
-
-  AI                      Mock / Ollama / Gemini  Provider-abstracted
-                                                  report generation
-
-  Frontend                React 18, Vite          Single-page application
-
-  Visualisation           D3.js                   Interactive attack
-                                                  graph
-
-  HTTP                    Axios                   Authenticated API
-                                                  communication
-
-  Containers              Docker, Docker Compose  Reproducible local
-                                                  backend/RAG stack
-
-  CI/CD                   GitHub Actions          Automated verification
-                                                  and deployment
-
-  Hosting                 Render, Vercel          Backend and frontend
-                                                  hosting
-  -----------------------------------------------------------------------
+- deterministic analysis before generative AI;
+- provider abstraction across mock, Ollama and Gemini modes;
+- retrieval-augmented generation with explicit provenance;
+- persisted attack-graph topology rather than frontend reconstruction;
+- defensive input validation and ownership checks;
+- automated regression testing and CI/CD;
+- graceful degradation when optional AI or RAG infrastructure is unavailable.
 
 ------------------------------------------------------------------------
 
@@ -672,12 +672,19 @@ purposes only.
 ------------------------------------------------------------------------
 
 <div align="center">
-**SENTINEL by FINSIQ**
 
-*Detect · Analyse · Respond*
+<strong>SENTINEL by FINSIQ</strong>
 
-[Live Demo](https://sentinel-rho-ruby.vercel.app/) · [API
-Health](https://sentinel-api-mf0t.onrender.com/api/health) · [Back to
-top](#sentinel)
+<br/>
+
+<em>Detect · Analyse · Respond</em>
+
+<br/><br/>
+
+<a href="https://sentinel-rho-ruby.vercel.app/">Live Demo</a>
+&nbsp;·&nbsp;
+<a href="https://sentinel-api-mf0t.onrender.com/api/health">API Health</a>
+&nbsp;·&nbsp;
+<a href="#sentinel">Back to top</a>
 
 </div>
