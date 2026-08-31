@@ -156,7 +156,7 @@ investigations while preserving accurate pagination state.
 
 The SENTINEL dashboard provides an overview of investigation activity, system status and recent intelligence.
 
-<img src="assets/screenshots/dashboard.png" alt="SENTINEL Dashboard" width="900"/>
+<img src="./assets/screenshots/dashboard.png" alt="SENTINEL Dashboard" width="850"/>
 
 ---
 
@@ -164,39 +164,39 @@ The SENTINEL dashboard provides an overview of investigation activity, system st
 
 Security telemetry can be uploaded for analysis through the investigation workflow.
 
-<img src="assets/screenshots/upload.png" alt="SENTINEL Data Upload" width="900"/>
+<img src="./assets/screenshots/upload.png" alt="SENTINEL Data Upload" width="850"/>
 
 ---
 
 ### Investigation Analysis
 
-SENTINEL processes uploaded telemetry to surface anomalies, security signals and investigation findings.
+SENTINEL processes uploaded telemetry into structured findings, threat indicators and investigation context.
 
-<img src="assets/screenshots/analysis.png" alt="SENTINEL Analysis" width="900"/>
+<img src="./assets/screenshots/analysis.png" alt="SENTINEL Analysis" width="850"/>
 
 ---
 
 ### Attack Graph
 
-The interactive attack graph visualises relationships between entities, events and observed attack techniques.
+The interactive attack graph visualises persisted relationships between entities and suspicious activity without reconstructing or fabricating missing topology.
 
-<img src="assets/screenshots/attack-graph.png" alt="SENTINEL Attack Graph" width="900"/>
+<img src="./assets/screenshots/attack-graph.png" alt="SENTINEL Attack Graph" width="850"/>
 
 ---
 
 ### Incident Report
 
-BONA converts investigation findings into a structured incident report while applying grounding and validation controls to AI-generated content.
+BONA transforms investigation findings into a structured incident assessment with grounded MITRE ATT&CK techniques, recommended actions and evidence-aware reporting.
 
-<img src="assets/screenshots/incident-report.png" alt="SENTINEL Incident Report" width="900"/>
+<img src="./assets/screenshots/incident-report.png" alt="SENTINEL Incident Report" width="850"/>
 
 ---
 
 ### Investigation History
 
-Previous investigations and generated reports can be reviewed through the investigation history interface.
+Previous investigations can be reviewed, filtered and managed through the investigation history interface.
 
-<img src="assets/screenshots/history.png" alt="SENTINEL Investigation History" width="900"/>
+<img src="./assets/screenshots/history.png" alt="SENTINEL Investigation History" width="850"/>
 
 ------------------------------------------------------------------------
 
